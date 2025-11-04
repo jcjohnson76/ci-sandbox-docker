@@ -5,6 +5,12 @@ on:
 jobs:
   hello:
     runs-on: self-hosted
+
+    # ⬅️ Make secrets available via env (safe and allowed in expressions)
+    env:
+      SMTP_USER: ${{ secrets.SMTP_USER || '' }}
+      SMTP_PASS: ${{ secrets.SMTP_PASS || '' }}
+    
     steps:
       - name: Display system information
         run: |
