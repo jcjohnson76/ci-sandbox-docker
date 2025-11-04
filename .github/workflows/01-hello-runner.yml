@@ -40,23 +40,27 @@ jobs:
           echo "✅ Workflow complete!"
           echo "Artifact 'hello-runner-report' uploaded."
 
-      # This step is optional and will only run if both secrets exist
-      - name: Send email notification
-        if: ${{ success() }}
+      # Optional email step (won’t break build if it fails)
+      - name: Send email notification (optional)
+        if: ${{ success() && secrets.SMTP_USER != '' && secrets.SMTP_PASS != '' }}
+        continue-on-error: true
         uses: dawidd6/action-send-mail@v3
-        env:
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
         with:
           server_address: smtp.gmail.com
-          server_port: 587
-          secure: false
-          username: ${{ env.SMTP_USER }}
-          password: ${{ env.SMTP_PASS }}
-          subject: "Hello Runner Completed ✅"
+          server_port: 465
+          secure: true
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASS }}
+          from: ${{ secrets.SMTP_USER }}
           to: "James.Johnson@csa-architeks.com"
-          from: "GitHub Actions <James.Johnson@csa-architeks.com>"
+          subject: "Hello Runner Completed ✅"
           body: |
             The Hello Runner workflow has finished successfully!
             You can download the artifact here:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      # If SMTP secrets are not configured, still show confirmation
+      - name: No email configured notice
+        if: ${{ secrets.SMTP_USER == '' || secrets.SMTP_PASS == '' }}
+        run: |
+          echo "ℹ️ Email notification skipped — SMTP credentials not configured."
