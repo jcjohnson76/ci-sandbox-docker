@@ -1,0 +1,39 @@
+name: 01 - Hello Runner Enhanced
+on:
+  workflow_dispatch:
+
+jobs:
+  hello:
+    runs-on: self-hosted
+    steps:
+      - name: Display system information
+        run: |
+          echo "==============================="
+          echo " Hello from your self-hosted runner!"
+          echo "==============================="
+          echo "User     : $USER"
+          echo "Hostname : $(hostname)"
+          echo "Kernel   : $(uname -a)"
+          echo "Date     : $(date)"
+          echo "==============================="
+
+      - name: Save output to file
+        run: |
+          mkdir -p out
+          echo "Hello Runner Report" > out/report.txt
+          echo "===================" >> out/report.txt
+          echo "User: $USER" >> out/report.txt
+          echo "Host: $(hostname)" >> out/report.txt
+          echo "Kernel: $(uname -a)" >> out/report.txt
+          echo "Date: $(date)" >> out/report.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hello-runner-report
+          path: out/report.txt
+
+      - name: Print confirmation
+        run: |
+          echo "✅ Workflow complete!"
+          echo "Artifact 'hello-runner-report' uploaded."
