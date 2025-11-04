@@ -1,0 +1,13 @@
+name: Runner Self-Test
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: self-hosted
+    steps:
+      - name: Check connectivity
+        run: |
+          echo "Runner $(hostname) is alive"
+          uname -a
+          date
