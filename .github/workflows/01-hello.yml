@@ -1,0 +1,23 @@
+name: 01 - Hello Runner
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/01-hello.yml
+
+jobs:
+  hello:
+    runs-on: self-hosted
+    steps:
+      - name: Show who/where
+        run: |
+          echo "User   : $USER"
+          echo "Host   : $(hostname)"
+          echo "Kernel : $(uname -a)"
+          echo "Date   : $(date)"
+      - name: Show GitHub context
+        run: |
+          echo "Repo   : $GITHUB_REPOSITORY"
+          echo "Ref    : $GITHUB_REF"
+          echo "SHA    : $GITHUB_SHA"
+          echo "Run ID : $GITHUB_RUN_ID"
