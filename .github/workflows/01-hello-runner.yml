@@ -20,12 +20,14 @@ jobs:
       - name: Save output to file
         run: |
           mkdir -p out
-          echo "Hello Runner Report" > out/report.txt
-          echo "===================" >> out/report.txt
-          echo "User: $USER" >> out/report.txt
-          echo "Host: $(hostname)" >> out/report.txt
-          echo "Kernel: $(uname -a)" >> out/report.txt
-          echo "Date: $(date)" >> out/report.txt
+          {
+            echo "Hello Runner Report"
+            echo "==================="
+            echo "User: $USER"
+            echo "Host: $(hostname)"
+            echo "Kernel: $(uname -a)"
+            echo "Date: $(date)"
+          } > out/report.txt
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -37,3 +39,21 @@ jobs:
         run: |
           echo "✅ Workflow complete!"
           echo "Artifact 'hello-runner-report' uploaded."
+
+      # This step is optional and will only run if both secrets exist
+      - name: Send email notification
+        if: ${{ success() && secrets.SMTP_USER != '' && secrets.SMTP_PASS != '' }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          secure: false              # use true only for port 465
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASS }}
+          subject: "Hello Runner Completed ✅"
+          to: "jcj0hns0n76@hotmail.com"
+          from: "GitHub Actions <jcj0hnns0n76@hotmail.com>"
+          body: |
+            The Hello Runner workflow has finished successfully!
+            You can download the artifact here:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
