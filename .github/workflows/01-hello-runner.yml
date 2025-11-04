@@ -1,4 +1,5 @@
 name: 01 - Hello Runner Enhanced
+
 on:
   workflow_dispatch:
 
@@ -6,11 +7,11 @@ jobs:
   hello:
     runs-on: self-hosted
 
-    # ⬅️ Make secrets available via env (safe and allowed in expressions)
+    # expose secrets via env for use in expressions safely
     env:
       SMTP_USER: ${{ secrets.SMTP_USER || '' }}
       SMTP_PASS: ${{ secrets.SMTP_PASS || '' }}
-    
+
     steps:
       - name: Display system information
         run: |
@@ -46,27 +47,24 @@ jobs:
           echo "✅ Workflow complete!"
           echo "Artifact 'hello-runner-report' uploaded."
 
-      # Optional email step (won’t break build if it fails)
+      # --- OPTIONAL EMAIL (only if creds exist) ---
       - name: Send email notification (optional)
-        if: ${{ success() && secrets.SMTP_USER != '' && secrets.SMTP_PASS != '' }}
+        if: ${{ success() && env.SMTP_USER != '' && env.SMTP_PASS != '' }}
         continue-on-error: true
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
           secure: true
-          username: ${{ secrets.SMTP_USER }}
-          password: ${{ secrets.SMTP_PASS }}
-          from: ${{ secrets.SMTP_USER }}
-          to: "James.Johnson@csa-architeks.com"
+          username: ${{ env.SMTP_USER }}
+          password: ${{ env.SMTP_PASS }}
+          from: ${{ env.SMTP_USER }}
+          to: "jcj0hns0n76@hotmail.com"
           subject: "Hello Runner Completed ✅"
           body: |
             The Hello Runner workflow has finished successfully!
-            You can download the artifact here:
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Artifact: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-      # If SMTP secrets are not configured, still show confirmation
       - name: No email configured notice
-        if: ${{ secrets.SMTP_USER == '' || secrets.SMTP_PASS == '' }}
-        run: |
-          echo "ℹ️ Email notification skipped — SMTP credentials not configured."
+        if: ${{ env.SMTP_USER == '' || env.SMTP_PASS == '' }}
+        run: echo "ℹ️ Email notification skipped — SMTP credentials not configured."
